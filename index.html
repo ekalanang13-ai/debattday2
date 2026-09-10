@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lomba Debat Intelektual BATIK 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy: #1b4332;
+    --navy-dark: #12301f;
+    --teal: #2d6a4f;
+    --teal-dark: #1f4d38;
+    --ivory: #fbeaf0;
+    --btn-light: #ffe3ee;
+    --btn-light-text: #7a1f4b;
+    --blue: #ff4d94;
+    --blue-dark: #e02f78;
+    --orange: #ff7ab3;
+    --orange-dark: #e35a97;
+    --gray: #74c69d;
+    --gray-dark: #52b788;
+  }
+
+  *{ box-sizing:border-box; }
+
+  body{
+    margin:0;
+    background: var(--teal);
+    color: var(--ivory);
+    font-family:'Quicksand', sans-serif;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+
+  header{
+    width:100%;
+    background: var(--navy);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:18px;
+    padding: 20px 24px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+  }
+  header img{
+    width:64px;
+    height:64px;
+    object-fit:contain;
+    background:#fff;
+    border-radius:50%;
+    padding:4px;
+  }
+  header h1{
+    font-family:'Baloo 2', sans-serif;
+    font-size: clamp(20px, 3.2vw, 30px);
+    font-weight:700;
+    margin:0;
+    color:#fff;
+    letter-spacing: 0.3px;
+  }
+
+  main{
+    width:100%;
+    max-width: 760px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding: 48px 24px 64px;
+  }
+
+  /* ---------- Step 1: pilih angka ---------- */
+  .step{ width:100%; display:flex; flex-direction:column; align-items:center; }
+  .step[hidden]{ display:none; }
+
+  .subtitle{
+    text-align:center;
+    color: rgba(251,234,240,0.75);
+    font-size: 18px;
+    margin: 0 0 36px;
+  }
+
+  .grid{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+    max-width: 520px;
+    width:100%;
+    margin-bottom: 12px;
+  }
+  @media (max-width:480px){ .grid{ gap:14px; } }
+
+  .num{
+    aspect-ratio:1;
+    border-radius:50%;
+    border: none;
+    background: var(--btn-light);
+    color: var(--btn-light-text);
+    font-family:'Baloo 2', sans-serif;
+    font-size: clamp(28px, 5vw, 36px);
+    font-weight:700;
+    cursor:pointer;
+    transition: transform .25s cubic-bezier(.34,1.56,.64,1), background .2s ease;
+  }
+  .num:hover{ transform: translateY(-2px) scale(1.06); background:#fff; }
+  .num:focus-visible{ outline:2px solid var(--blue); outline-offset:2px; }
+
+  /* ---------- Step 2: mosi + timer ---------- */
+  .mosi-heading{
+    font-family:'Baloo 2', sans-serif;
+    font-size: clamp(18px, 2.6vw, 24px);
+    font-weight:700;
+    text-align:center;
+    line-height:1.5;
+    max-width: 680px;
+    margin: 0 0 8px;
+    color: var(--ivory);
+  }
+
+  .phase-label{
+    font-size: 17px;
+    color: rgba(251,234,240,0.85);
+    margin: 6px 0 28px;
+    min-height: 24px;
+  }
+
+  .timer{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size: clamp(48px, 9vw, 78px);
+    letter-spacing: 2px;
+    color:#fff;
+    margin: 10px 0 40px;
+    padding: 6px 46px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.08);
+    font-variant-numeric: tabular-nums;
+  }
+  .timer.warning{ color: #ffc2dc; }
+  .timer.danger{ color: #ffffff; }
+
+  .phase-row{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap: 14px;
+    margin-bottom: 34px;
+  }
+  .phase-btn{
+    border:none;
+    border-radius: 999px;
+    padding: 14px 24px;
+    background: var(--btn-light);
+    color: var(--btn-light-text);
+    font-family:'Baloo 2', sans-serif;
+    font-size: 14px;
+    font-weight:600;
+    cursor:pointer;
+    transition: transform .25s cubic-bezier(.34,1.56,.64,1), background .2s ease, box-shadow .2s ease;
+  }
+  .phase-btn:hover{ transform: translateY(-2px); }
+  .phase-btn:disabled{ opacity:.45; cursor:not-allowed; transform:none; }
+  .phase-btn.active{
+    background:#fff;
+    box-shadow: 0 0 0 3px var(--blue) inset;
+  }
+  .phase-btn:focus-visible{ outline:2px solid var(--blue); outline-offset:2px; }
+
+  .control-row{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap: 14px;
+  }
+  .ctrl{
+    border:none;
+    border-radius: 999px;
+    padding: 13px 24px;
+    font-family:'Baloo 2', sans-serif;
+    font-size: 14px;
+    font-weight:600;
+    color:#fff;
+    cursor:pointer;
+    transition: transform .25s cubic-bezier(.34,1.56,.64,1), background .2s ease, opacity .2s ease;
+  }
+  .ctrl:hover{ transform: translateY(-2px); }
+  .ctrl:disabled{ opacity:.45; cursor:not-allowed; transform:none; }
+  .ctrl:focus-visible{ outline:2px solid #fff; outline-offset:2px; }
+
+  .ctrl.pause{ background: var(--blue); }
+  .ctrl.pause:hover{ background: var(--blue-dark); }
+  .ctrl.interupsi{ background: var(--orange); }
+  .ctrl.interupsi:hover{ background: var(--orange-dark); }
+  .ctrl.kembali{ background: var(--gray); }
+  .ctrl.kembali:hover{ background: var(--gray-dark); }
+  .ctrl.start{ background: var(--blue); }
+  .ctrl.start:hover{ background: var(--blue-dark); }
+
+  @media (prefers-reduced-motion: reduce){ *{ transition:none !important; } }
+</style>
+</head>
+<body>
+
+<header>
+  <img src="logo.png" alt="Logo BATIK 2026" onerror="this.style.display='none'">
+  <h1>Lomba Debat Intelektual BATIK 2026</h1>
+</header>
+
+<main>
+
+  <!-- STEP 1: pilih angka -->
+  <section class="step" id="step-pick">
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <!-- STEP 2: mosi + timer -->
+  <section class="step" id="step-timer" hidden>
+    <h2 class="mosi-heading" id="mosiHeading">Mosi 1: ...</h2>
+    <div class="phase-label" id="phaseLabel"></div>
+
+    <div class="timer" id="timerDisplay">00:00</div>
+
+    <div class="phase-row">
+      <button class="phase-btn" data-seconds="600" data-label="Case Building">Case Building (10 menit)</button>
+      <button class="phase-btn" data-seconds="420" data-label="Penyampaian Argumen">Penyampaian Argumen (7 menit)</button>
+      <button class="phase-btn" data-seconds="180" data-label="Kesimpulan">Kesimpulan (3 menit)</button>
+    </div>
+
+    <div class="control-row">
+      <button class="ctrl pause" id="pauseBtn">Pause / Resume</button>
+      <button class="ctrl interupsi" id="interupsiBtn">Interupsi (30 detik)</button>
+      <button class="ctrl kembali" id="kembaliBtn">Kembali</button>
+      <button class="ctrl start" id="startBtn">START</button>
+      <button class="ctrl start" id="lanjutkanBtn" hidden>Lanjutkan Sesi</button>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  const mosi = {
+    1: "Dewan percaya bahwa media sosial lebih banyak menurunkan kualitas diskusi publik dibanding meningkatkan literasi digital remaja.",
+    2: "Dewan percaya bahwa kecerdasan buatan sebaiknya diregulasi lebih ketat oleh pemerintah.",
+    3: "Dewan percaya bahwa Indonesia sebaiknya menerapkan sistem pendidikan berbasis proyek menggantikan ujian nasional.",
+    4: "Dewan percaya bahwa kebijakan kerja jarak jauh sebaiknya menjadi hak, bukan sekadar fasilitas, bagi pekerja.",
+    5: "Dewan percaya bahwa pariwisata massal sebaiknya dibatasi demi kelestarian budaya lokal.",
+    6: "Dewan percaya bahwa influencer sebaiknya bertanggung jawab secara hukum atas konten yang mereka promosikan."
+  };
+
+  // ---------- Step 1: grid angka ----------
+  const grid = document.getElementById('grid');
+  const stepPick = document.getElementById('step-pick');
+  const stepTimer = document.getElementById('step-timer');
+  const mosiHeading = document.getElementById('mosiHeading');
+
+  for (let i = 1; i <= 6; i++){
+    const btn = document.createElement('button');
+    btn.className = 'num';
+    btn.textContent = i;
+    btn.setAttribute('aria-label', 'Pilih angka ' + i);
+    btn.addEventListener('click', () => goToTimer(i));
+    grid.appendChild(btn);
+  }
+
+  function goToTimer(number){
+    mosiHeading.textContent = 'Mosi ' + number + ': ' + (mosi[number] || '');
+    resetTimerScreen();
+    stepPick.hidden = true;
+    stepTimer.hidden = false;
+  }
+
+  // ---------- Step 2: timer ----------
+  const phaseLabel = document.getElementById('phaseLabel');
+  const timerDisplay = document.getElementById('timerDisplay');
+  const phaseButtons = document.querySelectorAll('.phase-btn');
+  const pauseBtn = document.getElementById('pauseBtn');
+  const interupsiBtn = document.getElementById('interupsiBtn');
+  const kembaliBtn = document.getElementById('kembaliBtn');
+  const startBtn = document.getElementById('startBtn');
+  const lanjutkanBtn = document.getElementById('lanjutkanBtn');
+
+  let remaining = 0;
+  let running = false;
+  let paused = false;
+  let mainTimerId = null;
+  let inInterupsi = false;      // 30 detik interupsi sedang berjalan
+  let interupsiArmed = false;   // interupsi sudah diklik, menunggu START
+  let interupsiPaused = false;  // hitungan interupsi sedang dijeda
+  let interupsiTimerId = null;
+  let interupsiRemaining = 30;
+  let currentPhaseLabelText = '';
+
+  function formatTime(sec){
+    const m = Math.floor(sec / 60).toString().padStart(2, '0');
+    const s = Math.floor(sec % 60).toString().padStart(2, '0');
+    return m + ':' + s;
+  }
+
+  function updateDisplay(){
+    timerDisplay.textContent = formatTime(remaining);
+    timerDisplay.classList.toggle('warning', remaining <= 60 && remaining > 20);
+    timerDisplay.classList.toggle('danger', remaining <= 20);
+  }
+
+  function resetTimerScreen(){
+    clearInterval(mainTimerId);
+    clearInterval(interupsiTimerId);
+    running = false;
+    paused = false;
+    inInterupsi = false;
+    interupsiArmed = false;
+    interupsiPaused = false;
+    remaining = 0;
+    currentPhaseLabelText = '';
+    phaseLabel.textContent = '';
+    startBtn.hidden = false;
+    startBtn.disabled = true;
+    lanjutkanBtn.hidden = true;
+    interupsiBtn.disabled = false;
+    pauseBtn.textContent = 'Pause / Resume';
+    phaseButtons.forEach(b => { b.classList.remove('active'); b.disabled = false; });
+    updateDisplay();
+  }
+
+  phaseButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      clearInterval(mainTimerId);
+      clearInterval(interupsiTimerId);
+      running = false;
+      paused = false;
+      inInterupsi = false;
+      interupsiArmed = false;
+      interupsiPaused = false;
+      lanjutkanBtn.hidden = true;
+      interupsiBtn.disabled = false;
+      pauseBtn.textContent = 'Pause / Resume';
+      phaseButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      remaining = parseInt(btn.dataset.seconds, 10);
+      currentPhaseLabelText = btn.dataset.label;
+      phaseLabel.textContent = currentPhaseLabelText;
+      startBtn.hidden = false;
+      startBtn.disabled = false;
+      updateDisplay();
+    });
+  });
+
+  function tick(){
+    if (paused || inInterupsi || interupsiArmed) return;
+    remaining--;
+    if (remaining <= 0){
+      remaining = 0;
+      updateDisplay();
+      clearInterval(mainTimerId);
+      running = false;
+      phaseLabel.textContent = currentPhaseLabelText + ' — Waktu habis';
+      return;
+    }
+    updateDisplay();
+  }
+
+  startBtn.addEventListener('click', () => {
+    // Kalau interupsi sudah di-arm, START memicu hitungan mundur 30 detiknya
+    if (interupsiArmed){
+      interupsiArmed = false;
+      inInterupsi = true;
+      startBtn.disabled = true;
+      clearInterval(interupsiTimerId);
+      interupsiTimerId = setInterval(() => {
+        if (interupsiPaused) return;
+        interupsiRemaining--;
+        if (interupsiRemaining <= 0){
+          endInterupsi();
+          return;
+        }
+        timerDisplay.textContent = formatTime(interupsiRemaining);
+      }, 1000);
+      return;
+    }
+
+    // Jalur normal: mulai sesi utama
+    if (remaining <= 0) return;
+    if (running) return;
+    running = true;
+    paused = false;
+    clearInterval(mainTimerId);
+    mainTimerId = setInterval(tick, 1000);
+  });
+
+  pauseBtn.addEventListener('click', () => {
+    if (inInterupsi){
+      interupsiPaused = !interupsiPaused;
+      pauseBtn.textContent = interupsiPaused ? 'Resume' : 'Pause / Resume';
+      return;
+    }
+    if (interupsiArmed) return;
+    if (!running) return;
+    paused = !paused;
+    pauseBtn.textContent = paused ? 'Resume' : 'Pause / Resume';
+  });
+
+  interupsiBtn.addEventListener('click', () => {
+    if (inInterupsi || interupsiArmed) return;
+
+    interupsiArmed = true;
+    interupsiRemaining = 30;
+    interupsiBtn.disabled = true;
+    phaseButtons.forEach(b => b.disabled = true);
+    lanjutkanBtn.hidden = false;
+
+    phaseLabel.textContent = 'Interupsi';
+    timerDisplay.textContent = formatTime(interupsiRemaining);
+    timerDisplay.classList.remove('warning');
+    timerDisplay.classList.add('danger');
+
+    // Aktifkan START supaya bisa memicu hitungan mundur interupsi
+    startBtn.hidden = false;
+    startBtn.disabled = false;
+  });
+
+  function endInterupsi(){
+    clearInterval(interupsiTimerId);
+    inInterupsi = false;
+    interupsiArmed = false;
+    interupsiPaused = false;
+    interupsiBtn.disabled = false;
+    phaseButtons.forEach(b => b.disabled = false);
+    lanjutkanBtn.hidden = true;
+    phaseLabel.textContent = currentPhaseLabelText;
+
+    if (currentPhaseLabelText === ''){
+      startBtn.disabled = true;
+      pauseBtn.textContent = 'Pause / Resume';
+    } else if (running && currentPhaseLabelText === 'Penyampaian Argumen'){
+      // Khusus fase Penyampaian Argumen: waktu utama otomatis lanjut jalan
+      paused = false;
+      pauseBtn.textContent = 'Pause / Resume';
+      startBtn.disabled = false;
+    } else if (running){
+      paused = true;
+      pauseBtn.textContent = 'Resume';
+      startBtn.disabled = false;
+    } else {
+      pauseBtn.textContent = 'Pause / Resume';
+      startBtn.disabled = false;
+    }
+    updateDisplay();
+  }
+
+  lanjutkanBtn.addEventListener('click', endInterupsi);
+
+  kembaliBtn.addEventListener('click', () => {
+    resetTimerScreen();
+    stepTimer.hidden = true;
+    stepPick.hidden = false;
+  });
+</script>
+
+</body>
+</html>
